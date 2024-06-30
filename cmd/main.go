@@ -41,6 +41,7 @@ func newPage() Page {
 func main() {
 
 	e := echo.New()
+	e.Static("/public", "public")
 	e.Use(middleware.Logger())
 
 	page := newPage()
