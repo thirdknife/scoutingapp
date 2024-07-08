@@ -1,62 +1,39 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/thirdknife/scoutingapp/database/player"
-	"os"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-type Database struct {
-	db *sql.DB
-
-	PlayerTable *player.Table
-}
-
-// OpenOrCreate attempts to open the provided file, but if it doesn't exist it creates
-// one at the provided location. If no location is provided it creates an in-memory database.
-func OpenOrCreate(path string) (*Database, error) {
+// Load opens the database at the given path. If `path == ""` then a new in-memory database is returned.
+func Load(path string) (*gorm.DB, error) {
+	// Default to an in-memory database.
+	// https://gorm.io/docs/connecting_to_the_database.html#SQLite
 	if path == "" {
-		return New("")
+		path = "file::memory:?cache=shared"
 	}
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return New(path)
-	}
-	return fromFile(path)
-}
-
-// New creates a new database at the given path. It fails if there is already a file at that path.
-func New(path string) (*Database, error) {
-	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		// The file not existing is good. This method creates it.
-	} else {
-		return nil, fmt.Errorf("database file %q already exists", path)
-	}
-
-	db, err := fromFile(path)
+	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database file %q: %v", path, err)
+		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
-	if err := db.PlayerTable.CreateDBTable(); err != nil {
-		return nil, fmt.Errorf("failed to create database table %q: %v", path, err)
+
+	// Auto Migrate the schemas
+	err = db.AutoMigrate(
+		&Player{},
+		&Analysis{},
+		&DefenderAnalysis{},
+		&MidfielderAnalysis{},
+		&ForwardAnalysis{},
+		&TacticalAnalysis{},
+		&AthleticAnalysis{},
+		&CharacterAnalysis{},
+		&Match{},
+		&Scout{},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to migrate database to current schema: %w", err)
 	}
+
 	return db, nil
-}
-
-// Opens a database file.
-func fromFile(path string) (*Database, error) {
-	db, err := sql.Open("sqlite3", path)
-	if err != nil {
-		return nil, err
-	}
-	return &Database{
-		db:          db,
-		PlayerTable: &player.Table{DB: db},
-	}, nil
-}
-
-func (db *Database) Close() error {
-	return db.db.Close()
 }
