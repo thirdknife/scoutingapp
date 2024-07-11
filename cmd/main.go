@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/thirdknife/scoutingapp/database"
 	"html/template"
 	"io"
 	"net/http"
@@ -27,7 +28,7 @@ func main() {
 	templates["home"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/home.html"))
 	templates["about"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/about.html"))
 	templates["signup"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/signup.html"))
-	templates["players"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/dashboard.html"))
+	templates["players"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/players.html"))
 	templates["dashboard"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/dashboard.html"))
 
 	e.Static("/public", "public")
@@ -57,7 +58,20 @@ func main() {
 	})
 
 	e.GET("/players", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "players", nil)
+		type PlayersWrapper struct {
+			Players []*database.Player
+		}
+		fakePlayers := []*database.Player{
+			{
+				Name:  "Foo",
+				Score: 0,
+			},
+			{
+				Name:  "Bar",
+				Score: 1,
+			},
+		}
+		return c.Render(http.StatusOK, "players", PlayersWrapper{fakePlayers})
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
