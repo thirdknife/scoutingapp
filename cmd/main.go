@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -20,6 +21,19 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func main() {
+	db, err := database.Load("")
+	if err != nil {
+		fmt.Errorf("Error loading database: %v", err)
+		os.Exit(1)
+	}
+	db.Create(&database.Player{
+		Name:  "Foo",
+		Score: 0,
+	})
+	db.Create(&database.Player{
+		Name:  "Bar",
+		Score: 1,
+	})
 
 	e := echo.New()
 
@@ -58,20 +72,14 @@ func main() {
 	})
 
 	e.GET("/players", func(c echo.Context) error {
-		type PlayersWrapper struct {
-			Players []*database.Player
+		var players []*database.Player
+		result := db.Find(&players) // SELECT * FROM Players;
+		if result.Error != nil {
+			fmt.Errorf("Error loading players: %v", result.Error)
+			return c.HTML(http.StatusInternalServerError, "<p>Error fetching players.</p>")
+			return nil
 		}
-		fakePlayers := []*database.Player{
-			{
-				Name:  "Foo",
-				Score: 0,
-			},
-			{
-				Name:  "Bar",
-				Score: 1,
-			},
-		}
-		return c.Render(http.StatusOK, "players", PlayersWrapper{fakePlayers})
+		return c.Render(http.StatusOK, "players", players)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
