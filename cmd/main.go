@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/thirdknife/scoutingapp/database"
 	"html/template"
 	"io"
