@@ -73,10 +73,8 @@ func main() {
 	})
 
 	e.GET("/players", func(c echo.Context) error {
-		var players []*database.Player
-		result := db.Find(&players) // SELECT * FROM Players;
-		if result.Error != nil {
-			fmt.Errorf("Error loading players: %v", result.Error)
+		players, err := database.AllPlayers(db)
+		if err != nil {
 			return c.HTML(http.StatusInternalServerError, "<p>Error fetching players.</p>")
 			return nil
 		}
@@ -84,5 +82,4 @@ func main() {
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
-
 }
