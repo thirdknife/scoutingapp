@@ -2,5 +2,14 @@
 {{define "title"}}List of Players{{end}}
 
 {{define "content"}}
-  <p>Players page goes here</p>
+<table>
+  <th>Name</th>	<th>Score</th>
+
+  {{range .}}
+  <tr>
+    <td>{{.Name}}</td>
+    <td>{{.Score}}</td>
+  </tr>
+  {{end}}
+</table>
 {{end}}

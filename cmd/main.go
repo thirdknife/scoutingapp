@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"github.com/thirdknife/scoutingapp/database"
 	"html/template"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -19,6 +22,19 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func main() {
+	db, err := database.Load("")
+	if err != nil {
+		fmt.Errorf("Error loading database: %v", err)
+		os.Exit(1)
+	}
+	db.Create(&database.Player{
+		Name:  "Foo",
+		Score: 0,
+	})
+	db.Create(&database.Player{
+		Name:  "Bar",
+		Score: 1,
+	})
 
 	e := echo.New()
 
@@ -27,7 +43,7 @@ func main() {
 	templates["home"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/home.html"))
 	templates["about"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/about.html"))
 	templates["signup"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/signup.html"))
-	templates["players"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/dashboard.html"))
+	templates["players"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/players.html"))
 	templates["dashboard"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/dashboard.html"))
 
 	e.Static("/public", "public")
@@ -57,9 +73,13 @@ func main() {
 	})
 
 	e.GET("/players", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "players", nil)
+		players, err := database.AllPlayers(db)
+		if err != nil {
+			return c.HTML(http.StatusInternalServerError, "<p>Error fetching players.</p>")
+			return nil
+		}
+		return c.Render(http.StatusOK, "players", players)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
-
 }
