@@ -30,7 +30,7 @@ type PlayerAnalysis struct {
 	Name        string
 	Birthdate   string // mm/dd/yy
 	Height      int    // centimetres
-	Weight      int    // lbs
+	Weight      int    // kgs
 	Club        string // Could be a foreign key to a Club table
 	Position    string // enum could be implemented with custom type
 	ManagerName string
