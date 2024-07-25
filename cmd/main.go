@@ -44,7 +44,7 @@ func main() {
 	templates["home"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/home.html"))
 	templates["about"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/about.html"))
 	templates["signup"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/signup.html"))
-	templates["players"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/players.html"))
+	templates["players"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/players.html", "views/pages/add-players.html", "views/pages/list-players.html"))
 	templates["dashboard"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/dashboard.html"))
 
 	e.Static("/public", "public")
@@ -84,7 +84,7 @@ func main() {
 
 	e.POST("/players", func(c echo.Context) error {
 		//post
-		return c.Render(http.StatusOK, "players", nil)
+		return c.Render(http.StatusOK, "add-player-content", nil)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
