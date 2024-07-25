@@ -1,0 +1,13 @@
+
+{{define "player-content"}}
+<table>
+  <th>Name</th>	<th>Score</th>
+
+  {{range .}}
+  <tr>
+    <td>{{.Name}}</td>
+    <td>{{.Score}}</td>
+  </tr>
+  {{end}}
+</table>
+{{end}}
