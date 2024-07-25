@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/thirdknife/scoutingapp/database"
 
@@ -22,11 +23,26 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 	return t.templates[name].Execute(w, data)
 }
 
-func main() {
-	db, err := database.Load("")
+// TODO: use a persistent directory.
+const databaseDir = "/tmp/"
+
+// TODO: Delete fake database when real databases are implemented. This is only to demonstrate how a per-scout database can saved and then loaded based on a user identifier.
+func createFakeDatabaseFile(path string) error {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			// This is good. we don't want the fake database to already exist.
+		} else {
+			// try to clean up from prior runs.
+			err := os.Remove(path)
+			if err != nil {
+				return fmt.Errorf("failed to clean up pre-existing fake database: %w", err)
+			}
+		}
+	}
+	// Create a new database.
+	db, err := database.Load(path)
 	if err != nil {
-		fmt.Errorf("Error loading database: %v", err)
-		os.Exit(1)
+		return fmt.Errorf("error creating database: %v", err)
 	}
 	db.Create(&database.Player{
 		Name:  "Foo",
@@ -36,6 +52,27 @@ func main() {
 		Name:  "Bar",
 		Score: 1,
 	})
+	if err := database.SaveToFile(db); err != nil {
+		return fmt.Errorf("error saving fake scout database: %v", err)
+	}
+	return nil
+}
+
+func main() {
+	// TODO: This should be a hash of the scout's email (or whatever they use to log in).
+	userHash := "FAKE_SCOUT_HASH"
+	dbPath := filepath.Join(databaseDir, userHash+".db")
+	if err := createFakeDatabaseFile(dbPath); err != nil {
+		fmt.Printf("error creating fake database: %v", err)
+		os.Exit(1)
+	}
+
+	db, err := database.Load(dbPath)
+	if err != nil {
+		fmt.Printf("Error loading database: %v", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Loaded database from %s\n", dbPath)
 
 	e := echo.New()
 

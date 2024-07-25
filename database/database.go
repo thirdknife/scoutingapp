@@ -37,3 +37,13 @@ func Load(path string) (*gorm.DB, error) {
 
 	return db, nil
 }
+
+// SaveToFile saves the database to the same file path used when opening it. In-memory databases cannot be saved to
+// files, but will not return an error.
+func SaveToFile(db *gorm.DB) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to save databse to file: %w", err)
+	}
+	return sqlDB.Close()
+}
