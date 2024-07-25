@@ -43,7 +43,7 @@ func Load(path string) (*gorm.DB, error) {
 func SaveToFile(db *gorm.DB) error {
 	sqlDB, err := db.DB()
 	if err != nil {
-		return fmt.Errorf("failed to save databse to file: %w", err)
+		return fmt.Errorf("failed to save database to file: %w", err)
 	}
 	return sqlDB.Close()
 }

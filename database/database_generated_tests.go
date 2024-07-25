@@ -2,6 +2,8 @@
 package database
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -191,5 +193,61 @@ func TestMultipleAnalysesForPlayer(t *testing.T) {
 	// Verify multiple analyses
 	if len(analyses) != 3 {
 		t.Errorf("Expected 3 analyses for player, got %d", len(analyses))
+	}
+}
+
+func TestSaveToFile(t *testing.T) {
+	tests := []struct {
+		name    string
+		dbPath  string
+		dbSetup func(dbPath string) (*gorm.DB, error)
+		wantErr bool
+	}{
+		{
+			name:   "successful save",
+			dbPath: filepath.Join(t.TempDir(), "test.db"),
+			dbSetup: func(dbPath string) (*gorm.DB, error) {
+				return gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+			},
+			wantErr: false,
+		},
+		{
+			name:   "in-memory database",
+			dbPath: ":memory:",
+			dbSetup: func(dbPath string) (*gorm.DB, error) {
+				return gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+			},
+			wantErr: false,
+		},
+		{
+			name:   "error opening database",
+			dbPath: filepath.Join(t.TempDir(), "nonexistent_dir", "test.db"),
+			dbSetup: func(dbPath string) (*gorm.DB, error) {
+				return gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db, err := tt.dbSetup(tt.dbPath)
+			if err != nil {
+				t.Fatalf("failed to set up test database: %v", err)
+			}
+
+			err = SaveToFile(db)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("SaveToFile() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			// For successful saves, check if the file exists (except for in-memory database)
+			if !tt.wantErr && tt.name != "in-memory database" {
+				if _, err := os.Stat(tt.dbPath); os.IsNotExist(err) {
+					t.Errorf("database file was not created at %s", tt.dbPath)
+				}
+			}
+		})
 	}
 }
