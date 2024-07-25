@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/thirdknife/scoutingapp/database"
 	"html/template"
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/thirdknife/scoutingapp/database"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -79,6 +80,11 @@ func main() {
 			return nil
 		}
 		return c.Render(http.StatusOK, "players", players)
+	})
+
+	e.POST("/players", func(c echo.Context) error {
+		//post
+		return c.Render(http.StatusOK, "players", nil)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
