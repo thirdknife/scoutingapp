@@ -82,7 +82,10 @@ func main() {
 	templates["dashboard"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/dashboard.html"))
 
 	e.Static("/public", "public")
-	e.Use(middleware.Logger())
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format:           `${time_custom}: ${method} ${uri} -> status=${status} ${error}` + "\n",
+		CustomTimeFormat: "2006-01-02 15:04:05",
+	}))
 
 	t := &TemplateRegistry{
 		templates: templates,
@@ -131,7 +134,7 @@ func main() {
 		}
 
 		if err := db.Debug().Create(player); err != nil {
-			fmt.Printf("pack %v: %v", name, err)
+			fmt.Printf("pack %v: %v\n", name, err)
 			return c.HTML(http.StatusInternalServerError, "<p>Error adding player.</p>")
 		}
 
