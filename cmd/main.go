@@ -133,13 +133,14 @@ func main() {
 			Score: 2,
 		}
 
-		if err := db.Debug().Create(player); err != nil {
+		if result := db.Debug().Create(player); result.Error != nil {
 			fmt.Printf("pack %v: %v\n", name, err)
 			return c.HTML(http.StatusInternalServerError, "<p>Error adding player.</p>")
 		}
 
 		players, err := database.AllPlayers(db)
 		if err != nil {
+			fmt.Println(err)
 			return c.HTML(http.StatusInternalServerError, "<p>Error fetching players.</p>")
 		}
 
