@@ -23,10 +23,8 @@ func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c 
 	return t.templates[name].Execute(w, data)
 }
 
-// TODO: use a persistent directory.
 const databaseDir = "/tmp/"
 
-// TODO: Delete fake database when real databases are implemented. This is only to demonstrate how a per-scout database can saved and then loaded based on a user identifier.
 func createFakeDatabaseFile(path string) error {
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
@@ -59,7 +57,6 @@ func createFakeDatabaseFile(path string) error {
 }
 
 func main() {
-	// TODO: This should be a hash of the scout's email (or whatever they use to log in).
 	userHash := "FAKE_SCOUT_HASH"
 	dbPath := filepath.Join(databaseDir, userHash+".db")
 	if err := createFakeDatabaseFile(dbPath); err != nil {
@@ -114,14 +111,36 @@ func main() {
 		players, err := database.AllPlayers(db)
 		if err != nil {
 			return c.HTML(http.StatusInternalServerError, "<p>Error fetching players.</p>")
-			return nil
 		}
 		return c.Render(http.StatusOK, "players", players)
 	})
 
 	e.POST("/players", func(c echo.Context) error {
-		//post
-		return c.Render(http.StatusOK, "players", nil)
+		name := c.FormValue("name")
+		// birthdate := c.FormValue("birthdate")
+		// height := c.FormValue("height")
+		// weight := c.FormValue("weight")
+		// club := c.FormValue("club")
+		// position := c.FormValue("position")
+		// managerName := c.FormValue("manager_name")
+		// telephone := c.FormValue("telephone")
+
+		player := &database.Player{
+			Name:  name,
+			Score: 2,
+		}
+
+		if err := db.Debug().Create(player); err != nil {
+			fmt.Printf("pack %v: %v", name, err)
+			return c.HTML(http.StatusInternalServerError, "<p>Error adding player.</p>")
+		}
+
+		players, err := database.AllPlayers(db)
+		if err != nil {
+			return c.HTML(http.StatusInternalServerError, "<p>Error fetching players.</p>")
+		}
+
+		return c.Render(http.StatusOK, "players", players)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
