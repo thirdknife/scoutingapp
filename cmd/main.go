@@ -14,8 +14,10 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+// TODO: use a persistent directory.
 const databaseDir = "/tmp/"
 
+// TODO: Delete fake database when real databases are implemented. This is only to demonstrate how a per-scout database can saved and then loaded based on a user identifier.
 func createFakeDatabaseFile(path string) error {
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
@@ -55,6 +57,7 @@ func RenderComponent(c echo.Context, status int, cmp templ.Component) error {
 }
 
 func main() {
+	// TODO: This should be a hash of the scout's email (or whatever they use to log in).
 	userHash := "FAKE_SCOUT_HASH"
 	dbPath := filepath.Join(databaseDir, userHash+".db")
 	if err := createFakeDatabaseFile(dbPath); err != nil {
