@@ -1,0 +1,22 @@
+package views
+
+import (
+	db "github.com/thirdknife/scoutingapp/database"
+	"fmt"
+)
+
+templ ListPlayers(players []*db.Player) {
+	@layout("Players") {
+		<table>
+			<th>Name</th>	
+			<th>Score</th>
+			for _, p := range players {
+				<tr>
+					<td>{p.Name}</td>
+					<td>{fmt.Sprintf("%v",p.Score)}</td>
+				</tr>
+			}
+		</table>
+	}
+}
+
