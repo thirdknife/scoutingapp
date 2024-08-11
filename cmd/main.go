@@ -2,26 +2,17 @@ package main
 
 import (
 	"fmt"
-	"html/template"
-	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 
+	"github.com/a-h/templ"
 	"github.com/thirdknife/scoutingapp/database"
+	base "github.com/thirdknife/scoutingapp/views"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
-
-type TemplateRegistry struct {
-	templates map[string]*template.Template
-	Reload    bool
-}
-
-func (t *TemplateRegistry) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates[name].Execute(w, data)
-}
 
 // TODO: use a persistent directory.
 const databaseDir = "/tmp/"
@@ -58,6 +49,13 @@ func createFakeDatabaseFile(path string) error {
 	return nil
 }
 
+func RenderComponent(c echo.Context, status int, cmp templ.Component) error {
+	c.Response().WriteHeader(status)
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTML)
+
+	return cmp.Render(c.Request().Context(), c.Response().Writer)
+}
+
 func main() {
 	// TODO: This should be a hash of the scout's email (or whatever they use to log in).
 	userHash := "FAKE_SCOUT_HASH"
@@ -76,52 +74,24 @@ func main() {
 
 	e := echo.New()
 
-	// Register templates
-	templates := make(map[string]*template.Template)
-	templates["home"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/home.html"))
-	templates["about"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/about.html"))
-	templates["signup"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/signup.html"))
-	templates["players"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/players.html"))
-	templates["dashboard"] = template.Must(template.ParseFiles("views/layouts/base.html", "views/pages/dashboard.html"))
-
 	e.Static("/public", "public")
-	e.Use(middleware.Logger())
-
-	t := &TemplateRegistry{
-		templates: templates,
-		Reload:    false, // Enable template caching
-	}
-
-	e.Renderer = t
-
-	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "home", nil)
-	})
-
-	e.GET("/about", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "about", nil)
-	})
-
-	e.GET("/signup", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "signup", nil)
-	})
-
-	e.GET("/dashboard", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "dashboard", nil)
-	})
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format:           `${time_custom}: ${method} ${uri} -> status=${status} ${error}` + "\n",
+		CustomTimeFormat: "2006-01-02 15:04:05",
+	}))
 
 	e.GET("/players", func(c echo.Context) error {
+
 		players, err := database.AllPlayers(db)
 		if err != nil {
 			return c.HTML(http.StatusInternalServerError, "<p>Error fetching players.</p>")
-			return nil
 		}
-		return c.Render(http.StatusOK, "players", players)
+
+		return RenderComponent(c, http.StatusOK, base.ListPlayers(players))
 	})
 
-	e.POST("/players", func(c echo.Context) error {
-		//post
-		return c.Render(http.StatusOK, "players", nil)
+	e.GET("/", func(c echo.Context) error {
+		return RenderComponent(c, http.StatusOK, base.Home())
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))

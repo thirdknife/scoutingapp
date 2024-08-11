@@ -16,7 +16,14 @@
 	"forwardPorts": [5432],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postStartCommand": "./.devcontainer/postCreateCommand.sh"
+	"postStartCommand": "./.devcontainer/postCreateCommand.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"a-h.templ"
+			]
+		}
+	}
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
