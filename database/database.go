@@ -21,6 +21,7 @@ func Load(path string) (*gorm.DB, error) {
 	// Auto Migrate the schemas
 	err = db.AutoMigrate(
 		&Player{},
+		&PlayerAnalysis{},
 		&Analysis{},
 		&DefenderAnalysis{},
 		&MidfielderAnalysis{},
@@ -28,7 +29,6 @@ func Load(path string) (*gorm.DB, error) {
 		&TacticalAnalysis{},
 		&AthleticAnalysis{},
 		&CharacterAnalysis{},
-		&Match{},
 		&Scout{},
 	)
 	if err != nil {

@@ -23,10 +23,16 @@ type Player struct {
 	// The full name of the player. Keeping it in a single string allows any input, which is better
 	// than trying to deal with the intricacies of separating first and last names, nicknames, etc.
 	Name string
-
-	// TODO: what is this? Should it be the score that the player contributed in a game, and put in Analysis?
-	Score int32
 }
+
+type PositionType string
+
+const (
+	Goalkeeper PositionType = "Goalkeeper"
+	Defender   PositionType = "Defender"
+	Midfielder PositionType = "Midfielder"
+	Forward    PositionType = "Forward"
+)
 
 // PlayerAnalysis represents static information that a Scout might record about a Player.
 // There can only be one PLayerAnalysis per Player, so updates always override existing data.
@@ -39,7 +45,7 @@ type PlayerAnalysis struct {
 	Height      int    // centimetres
 	Weight      int    // kgs
 	Club        string // TODO: Could be a foreign key to a Club table
-	Position    string // TODO: enum could be implemented with custom type
+	Position    PositionType
 	ManagerName string
 	Telephone   string
 }
@@ -74,7 +80,8 @@ type Analysis struct {
 
 	// The time in minutes that the player was on the field.
 	// This is most relevant for matches, but could be used in general.
-	PlayTimeMinutes int
+	// A nil value indicates that a time was not provided, while zero indicates someone on the bench.
+	PlayTimeMinutes *int
 
 	Date             string // yyyy-mm-dd hh:mm
 	WeatherCondition string
