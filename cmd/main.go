@@ -128,7 +128,7 @@ func main() {
 		}
 
 		if result := db.Debug().Create(playerAnalysis); result.Error != nil {
-			return c.HTML(http.StatusInternalServerError, "<p>Error adding player.</p>")
+			return c.HTML(http.StatusInternalServerError, "<p>Error adding player analysis.</p>")
 		}
 
 		players, err := database.AllPlayers(db)

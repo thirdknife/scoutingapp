@@ -22,6 +22,7 @@ func Load(path string) (*gorm.DB, error) {
 	err = db.AutoMigrate(
 		&Player{},
 		&Analysis{},
+		&PlayerAnalysis{},
 		&DefenderAnalysis{},
 		&MidfielderAnalysis{},
 		&ForwardAnalysis{},
