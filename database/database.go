@@ -47,3 +47,7 @@ func SaveToFile(db *gorm.DB) error {
 	}
 	return sqlDB.Close()
 }
+
+func intPointer(x int) *int {
+	return &x
+}

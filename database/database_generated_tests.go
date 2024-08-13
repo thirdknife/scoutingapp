@@ -157,10 +157,6 @@ func TestPlayerAnalysisRelationship(t *testing.T) {
 	}
 }
 
-func intPointer(x int) *int {
-	return &x
-}
-
 func TestMultipleAnalysesForPlayer(t *testing.T) {
 	db := setupTestDB(t)
 

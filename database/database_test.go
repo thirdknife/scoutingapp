@@ -46,13 +46,11 @@ func TestUpdatePlayer(t *testing.T) {
 	db := createTestDB(t)
 
 	newPlayer := &Player{
-		Name:  "Original Name",
-		Score: 100,
+		Name: "Original Name",
 	}
 	db.Create(newPlayer)
 
 	newPlayer.Name = "Updated Name"
-	newPlayer.Score = 150
 	result := db.Save(newPlayer)
 	if result.Error != nil {
 		t.Fatalf("Failed to update Player: %v", result.Error)
@@ -67,9 +65,6 @@ func TestUpdatePlayer(t *testing.T) {
 	if updatedPlayer.Name != "Updated Name" {
 		t.Errorf("Expected updated Player name to be 'Updated Name', got %q", updatedPlayer.Name)
 	}
-	if updatedPlayer.Score != 150 {
-		t.Errorf("Expected updated Player score to be 150, got %d", updatedPlayer.Score)
-	}
 }
 
 func TestAddSingleAnalysis(t *testing.T) {
@@ -79,9 +74,6 @@ func TestAddSingleAnalysis(t *testing.T) {
 		Name: "Name",
 	}
 	db.Create(newPlayer)
-
-	newMatch := &Match{}
-	db.Create(newMatch)
 
 	newDefenderAnalysis := &DefenderAnalysis{
 		BallControl:        1,
@@ -98,9 +90,8 @@ func TestAddSingleAnalysis(t *testing.T) {
 
 	newAnalysis := &Analysis{
 		PlayerID:           newPlayer.ID,
-		MatchID:            newMatch.ID,
 		DefenderAnalysisID: newDefenderAnalysis.ID,
-		PlayTimeMinutes:    15,
+		PlayTimeMinutes:    intPointer(15),
 		Date:               "2024-07-07",
 		WeatherCondition:   "sunny and hot",
 		Venue:              "Foo Stadium",
