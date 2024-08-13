@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/a-h/templ"
 	"github.com/thirdknife/scoutingapp/database"
@@ -81,13 +82,61 @@ func main() {
 	}))
 
 	e.GET("/players", func(c echo.Context) error {
+		players, err := database.AllPlayers(db)
+		if err != nil {
+			return c.HTML(http.StatusInternalServerError, "<p>Error fetching players.</p>")
+		}
+
+		return RenderComponent(c, http.StatusOK, base.ListPlayers(players, true))
+	})
+
+	e.POST("/players", func(c echo.Context) error {
+		//post
+		name := c.FormValue("name")
+		birthdate := c.FormValue("birthdate")
+		height := c.FormValue("height")
+		weight := c.FormValue("weight")
+		club := c.FormValue("club")
+		position := c.FormValue("position")
+		managerName := c.FormValue("manager_name")
+		telephone := c.FormValue("telephone")
+
+		player := &database.Player{
+			Name:  name,
+			Score: 2,
+		}
+
+		result := database.Player{}
+		if result := db.Debug().Create(player); result.Error != nil {
+			return c.HTML(http.StatusInternalServerError, "<p>Error adding player.</p>")
+		}
+
+		h, _ := strconv.Atoi(height)
+		w, _ := strconv.Atoi(weight)
+
+		playerAnalysis := &database.PlayerAnalysis{
+			PlayerID:    result.ID,
+			Notes:       "Some notes",
+			Name:        "Scout Name",
+			Birthdate:   birthdate,
+			Height:      h,
+			Weight:      w,
+			Club:        club,
+			Position:    position,
+			ManagerName: managerName,
+			Telephone:   telephone,
+		}
+
+		if result := db.Debug().Create(playerAnalysis); result.Error != nil {
+			return c.HTML(http.StatusInternalServerError, "<p>Error adding player.</p>")
+		}
 
 		players, err := database.AllPlayers(db)
 		if err != nil {
 			return c.HTML(http.StatusInternalServerError, "<p>Error fetching players.</p>")
 		}
 
-		return RenderComponent(c, http.StatusOK, base.ListPlayers(players))
+		return RenderComponent(c, http.StatusOK, base.ListPlayers(players, false))
 	})
 
 	e.GET("/", func(c echo.Context) error {
