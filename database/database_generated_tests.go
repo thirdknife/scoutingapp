@@ -27,7 +27,6 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		&TacticalAnalysis{},
 		&AthleticAnalysis{},
 		&CharacterAnalysis{},
-		&Match{},
 		&Scout{},
 	)
 	if err != nil {
@@ -41,7 +40,7 @@ func TestPlayerCRUD(t *testing.T) {
 	db := setupTestDB(t)
 
 	// Create
-	player := &Player{Name: "John Doe", Score: 85}
+	player := &Player{Name: "John Doe"}
 	if err := db.Create(player).Error; err != nil {
 		t.Fatalf("Failed to create player: %v", err)
 	}
@@ -51,13 +50,12 @@ func TestPlayerCRUD(t *testing.T) {
 	if err := db.First(&readPlayer, "id = ?", player.ID).Error; err != nil {
 		t.Fatalf("Failed to read player: %v", err)
 	}
-	if readPlayer.Name != player.Name || readPlayer.Score != player.Score {
+	if readPlayer.Name != player.Name {
 		t.Errorf("Read player does not match created player")
 	}
 
 	// Update
 	player.Name = "Jane Doe"
-	player.Score = 90
 	if err := db.Save(player).Error; err != nil {
 		t.Fatalf("Failed to update player: %v", err)
 	}
@@ -67,7 +65,7 @@ func TestPlayerCRUD(t *testing.T) {
 	if err := db.First(&updatedPlayer, "id = ?", player.ID).Error; err != nil {
 		t.Fatalf("Failed to read updated player: %v", err)
 	}
-	if updatedPlayer.Name != "Jane Doe" || updatedPlayer.Score != 90 {
+	if updatedPlayer.Name != "Jane Doe" {
 		t.Errorf("Updated player does not have expected values")
 	}
 
@@ -125,7 +123,7 @@ func TestPlayerAnalysisRelationship(t *testing.T) {
 	db := setupTestDB(t)
 
 	// Create a player
-	player := &Player{Name: "Bob", Score: 88}
+	player := &Player{Name: "Bob"}
 	if err := db.Create(player).Error; err != nil {
 		t.Fatalf("Failed to create player: %v", err)
 	}
@@ -134,7 +132,6 @@ func TestPlayerAnalysisRelationship(t *testing.T) {
 	playerAnalysis := &PlayerAnalysis{
 		PlayerID:    player.ID,
 		Notes:       "Promising talent",
-		Name:        "Bob",
 		Birthdate:   "2000-01-01",
 		Height:      180,
 		Weight:      75000,
@@ -164,7 +161,7 @@ func TestMultipleAnalysesForPlayer(t *testing.T) {
 	db := setupTestDB(t)
 
 	// Create a player
-	player := &Player{Name: "Charlie", Score: 92}
+	player := &Player{Name: "Charlie"}
 	if err := db.Create(player).Error; err != nil {
 		t.Fatalf("Failed to create player: %v", err)
 	}
@@ -173,7 +170,7 @@ func TestMultipleAnalysesForPlayer(t *testing.T) {
 	for i := 0; i < 3; i++ {
 		analysis := &Analysis{
 			PlayerID:         player.ID,
-			PlayTimeMinutes:  90,
+			PlayTimeMinutes:  intPointer(90),
 			Date:             time.Now().AddDate(0, 0, -i).Format("2006-01-02 15:04"),
 			WeatherCondition: "Cloudy",
 			Venue:            "Away Stadium",

@@ -21,6 +21,7 @@ func Load(path string) (*gorm.DB, error) {
 	// Auto Migrate the schemas
 	err = db.AutoMigrate(
 		&Player{},
+		&PlayerAnalysis{},
 		&Analysis{},
 		&DefenderAnalysis{},
 		&MidfielderAnalysis{},
@@ -28,7 +29,6 @@ func Load(path string) (*gorm.DB, error) {
 		&TacticalAnalysis{},
 		&AthleticAnalysis{},
 		&CharacterAnalysis{},
-		&Match{},
 		&Scout{},
 	)
 	if err != nil {
@@ -46,4 +46,8 @@ func SaveToFile(db *gorm.DB) error {
 		return fmt.Errorf("failed to save database to file: %w", err)
 	}
 	return sqlDB.Close()
+}
+
+func intPointer(x int) *int {
+	return &x
 }

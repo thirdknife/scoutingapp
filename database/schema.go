@@ -16,42 +16,81 @@ func (bm *BaseModel) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+// Player represents a single human player.
 type Player struct {
 	BaseModel
-	Name  string
-	Score int32
+
+	// The full name of the player. Keeping it in a single string allows any input, which is better
+	// than trying to deal with the intricacies of separating first and last names, nicknames, etc.
+	Name string
 }
 
+type PositionType string
+
+const (
+	Goalkeeper PositionType = "Goalkeeper"
+	Defender   PositionType = "Defender"
+	Midfielder PositionType = "Midfielder"
+	Forward    PositionType = "Forward"
+)
+
+// PlayerAnalysis represents static information that a Scout might record about a Player.
+// There can only be one PLayerAnalysis per Player, so updates always override existing data.
 type PlayerAnalysis struct {
 	BaseModel
 	PlayerID uuid.UUID `gorm:"foreignKey:PlayerID;type:uuid"`
 	Notes    string
 
-	Name        string
 	Birthdate   string // mm/dd/yy
 	Height      int    // centimetres
 	Weight      int    // kgs
-	Club        string // Could be a foreign key to a Club table
-	Position    string // enum could be implemented with custom type
+	Club        string // TODO: Could be a foreign key to a Club table
+	Position    PositionType
 	ManagerName string
 	Telephone   string
 }
 
+type AnalysisCategory string
+
+const (
+	Other    AnalysisCategory = "other"
+	Match                     = "Match"
+	Training                  = "Training"
+)
+
+// Analysis represents what a Scout records about a Player.
+// It can represent the information captured about a single match or training session.
 type Analysis struct {
 	BaseModel
-	PlayerID             uuid.UUID `gorm:"foreignKey:PlayerID;type:uuid"`
-	MatchID              uuid.UUID `gorm:"foreignKey:MatchID;type:uuid"`
+	PlayerID uuid.UUID `gorm:"foreignKey:PlayerID;type:uuid"`
+
+	// Category is what type of event this analysis was recorded for.
+	Category AnalysisCategory
+
+	// The following set of Analyses link to other tables with more detailed information.
+	// Generally only one of Defender/Midfielder/Forward will be set. Tactical/Athletic/Character can be used
+	// for any position, but may not be set if the Scout doesn't fill them in.
+
 	DefenderAnalysisID   uuid.UUID `gorm:"foreignKey:DefenderAnalysisID;type:uuid"`
 	MidfielderAnalysisID uuid.UUID `gorm:"foreignKey:MidfielderAnalysisID;type:uuid"`
 	ForwardAnalysisID    uuid.UUID `gorm:"foreignKey:ForwardAnalysisID;type:uuid"`
 	TacticalAnalysisID   uuid.UUID `gorm:"foreignKey:TacticalAnalysisID;type:uuid"`
 	AthleticAnalysisID   uuid.UUID `gorm:"foreignKey:AthleticAnalysisID;type:uuid"`
 	CharacterAnalysisID  uuid.UUID `gorm:"foreignKey:CharacterAnalysisID;type:uuid"`
-	PlayTimeMinutes      int
-	Date                 string // yyyy-mm-dd hh:mm
-	WeatherCondition     string
-	Venue                string
+
+	// The time in minutes that the player was on the field.
+	// This is most relevant for matches, but could be used in general.
+	// A nil value indicates that a time was not provided, while zero indicates someone on the bench.
+	PlayTimeMinutes *int
+
+	Date             string // yyyy-mm-dd hh:mm
+	WeatherCondition string
+	Venue            string
 }
+
+// All of the following analyses record various attributes of a player with a scale from [0-10]. 10 is best.
+// -1 means that a rating wasn't given.
+
 type DefenderAnalysis struct {
 	BaseModel
 	BallControl        int
@@ -94,7 +133,6 @@ type TacticalAnalysis struct {
 	Awareness          int
 	MovementOffTheBall int
 }
-
 type AthleticAnalysis struct {
 	BaseModel
 	Pace         int
@@ -103,7 +141,6 @@ type AthleticAnalysis struct {
 	BodyStrength int
 	WorkRate     int
 }
-
 type CharacterAnalysis struct {
 	BaseModel
 	EffortToWinBallBack int
@@ -116,10 +153,7 @@ type CharacterAnalysis struct {
 	TeamPlayer          int
 }
 
-type Match struct {
-	BaseModel
-}
-
+// Scout represents a human user of this application.
 type Scout struct {
 	BaseModel
 	Username string

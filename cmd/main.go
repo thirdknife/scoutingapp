@@ -36,12 +36,10 @@ func createFakeDatabaseFile(path string) error {
 		return fmt.Errorf("error creating database: %v", err)
 	}
 	db.Create(&database.Player{
-		Name:  "Foo",
-		Score: 0,
+		Name: "Foo",
 	})
 	db.Create(&database.Player{
-		Name:  "Bar",
-		Score: 1,
+		Name: "Bar",
 	})
 	if err := database.SaveToFile(db); err != nil {
 		return fmt.Errorf("error saving fake scout database: %v", err)

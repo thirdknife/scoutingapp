@@ -30,8 +30,8 @@ func TestAllPlayers(t *testing.T) {
 		{
 			name: "Successful retrieval",
 			seedData: []Player{
-				{Name: "Player 1", Score: 100},
-				{Name: "Player 2", Score: 200},
+				{Name: "Player 1"},
+				{Name: "Player 2"},
 			},
 			expectedCount: 2,
 			expectedError: false,
@@ -76,9 +76,6 @@ func TestAllPlayers(t *testing.T) {
 			for i, player := range players {
 				if player.Name != tc.seedData[i].Name {
 					t.Errorf("Expected player name %s, but got %s", tc.seedData[i].Name, player.Name)
-				}
-				if player.Score != tc.seedData[i].Score {
-					t.Errorf("Expected player score %d, but got %d", tc.seedData[i].Score, player.Score)
 				}
 			}
 		})
