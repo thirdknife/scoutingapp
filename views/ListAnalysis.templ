@@ -1,0 +1,42 @@
+
+package views
+
+import (
+    db "github.com/thirdknife/scoutingapp/database"
+    "fmt"
+)
+
+templ ListAnalysiss(analysiss []*db.Analysis) {
+    @layout("Analysiss") {
+       <table>
+          <th>PlayerID</th>
+          <th>Category</th>
+          <th>DefenderAnalysisID</th>
+          <th>MidfielderAnalysisID</th>
+          <th>ForwardAnalysisID</th>
+          <th>TacticalAnalysisID</th>
+          <th>AthleticAnalysisID</th>
+          <th>CharacterAnalysisID</th>
+          <th>PlayTimeMinutes</th>
+          <th>Date</th>
+          <th>WeatherCondition</th>
+          <th>Venue</th>
+          for _, a := range analysiss {
+             <tr>
+                <td>{fmt.Sprintf("%v", a.PlayerID)}</td>
+                <td>{fmt.Sprintf("%v", a.Category)}</td>
+                <td>{fmt.Sprintf("%v", a.DefenderAnalysisID)}</td>
+                <td>{fmt.Sprintf("%v", a.MidfielderAnalysisID)}</td>
+                <td>{fmt.Sprintf("%v", a.ForwardAnalysisID)}</td>
+                <td>{fmt.Sprintf("%v", a.TacticalAnalysisID)}</td>
+                <td>{fmt.Sprintf("%v", a.AthleticAnalysisID)}</td>
+                <td>{fmt.Sprintf("%v", a.CharacterAnalysisID)}</td>
+                <td>{fmt.Sprintf("%v", a.PlayTimeMinutes)}</td>
+                <td>{fmt.Sprintf("%v", a.Date)}</td>
+                <td>{fmt.Sprintf("%v", a.WeatherCondition)}</td>
+                <td>{fmt.Sprintf("%v", a.Venue)}</td>
+             </tr>
+          }
+       </table>
+    }
+}
