@@ -123,7 +123,10 @@ func TestPlayerAnalysisRelationship(t *testing.T) {
 	db := setupTestDB(t)
 
 	// Create a player
-	player := &Player{Name: "Bob"}
+	player := &Player{Name: "Bob",
+		Birthdate: "2000-01-01",
+		Telephone: "+1234567890",
+		Height:    180}
 	if err := db.Create(player).Error; err != nil {
 		t.Fatalf("Failed to create player: %v", err)
 	}
@@ -132,13 +135,10 @@ func TestPlayerAnalysisRelationship(t *testing.T) {
 	playerAnalysis := &PlayerAnalysis{
 		PlayerID:    player.ID,
 		Notes:       "Promising talent",
-		Birthdate:   "2000-01-01",
-		Height:      180,
 		Weight:      75000,
 		Club:        "FC Test",
 		Position:    "Midfielder",
 		ManagerName: "Coach Smith",
-		Telephone:   "+1234567890",
 	}
 	if err := db.Create(playerAnalysis).Error; err != nil {
 		t.Fatalf("Failed to create player analysis: %v", err)
