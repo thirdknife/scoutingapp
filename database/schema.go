@@ -22,7 +22,10 @@ type Player struct {
 
 	// The full name of the player. Keeping it in a single string allows any input, which is better
 	// than trying to deal with the intricacies of separating first and last names, nicknames, etc.
-	Name string
+	Name      string
+	Birthdate string // mm/dd/yy
+	Telephone string
+	Height    int // centimetres
 }
 
 type PositionType string
@@ -35,19 +38,15 @@ const (
 )
 
 // PlayerAnalysis represents static information that a Scout might record about a Player.
-// There can only be one PLayerAnalysis per Player, so updates always override existing data.
 type PlayerAnalysis struct {
 	BaseModel
 	PlayerID uuid.UUID `gorm:"foreignKey:PlayerID;type:uuid"`
 	Notes    string
 
-	Birthdate   string // mm/dd/yy
-	Height      int    // centimetres
 	Weight      int    // kgs
 	Club        string // TODO: Could be a foreign key to a Club table
 	Position    PositionType
 	ManagerName string
-	Telephone   string
 }
 
 type AnalysisCategory string
