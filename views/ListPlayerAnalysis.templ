@@ -1,0 +1,36 @@
+
+package views
+
+import (
+    db "github.com/thirdknife/scoutingapp/database"
+    "fmt"
+)
+
+templ ListPlayerAnalysiss(playeranalysiss []*db.PlayerAnalysis) {
+    @layout("PlayerAnalysiss") {
+       <table>
+          <th>PlayerID</th>
+          <th>Notes</th>
+          <th>Birthdate</th>
+          <th>Height</th>
+          <th>Weight</th>
+          <th>Club</th>
+          <th>Position</th>
+          <th>ManagerName</th>
+          <th>Telephone</th>
+          for _, p := range playeranalysiss {
+             <tr>
+                <td>{fmt.Sprintf("%v", p.PlayerID)}</td>
+                <td>{fmt.Sprintf("%v", p.Notes)}</td>
+                <td>{fmt.Sprintf("%v", p.Birthdate)}</td>
+                <td>{fmt.Sprintf("%v", p.Height)}</td>
+                <td>{fmt.Sprintf("%v", p.Weight)}</td>
+                <td>{fmt.Sprintf("%v", p.Club)}</td>
+                <td>{fmt.Sprintf("%v", p.Position)}</td>
+                <td>{fmt.Sprintf("%v", p.ManagerName)}</td>
+                <td>{fmt.Sprintf("%v", p.Telephone)}</td>
+             </tr>
+          }
+       </table>
+    }
+}
